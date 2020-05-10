@@ -14,13 +14,13 @@ def dayPrices(ticker, which = 'Open', per = '1d', inter= '1d', numDays = 100, en
     stock = yf.Ticker(ticker)
     his = stock.history(start=startDay, end=endDay, period = per, interval=inter)
     if which=='Open':
-        return his.Open.real.tolist()[-numDays:]
+        return his.Open.values.tolist()[-numDays:]
     elif which=='Close':
-        return his.Close.real.tolist()[-numDays:]
+        return his.Close.values.tolist()[-numDays:]
     elif which == 'Low':
-        return his.Low.real.tolist()[-numDays:]
+        return his.Low.values.tolist()[-numDays:]
     else:
-        return his.High.real.tolist()[-numDays:]
+        return his.High.values.tolist()[-numDays:]
 
 
 # Retrieve the live price of a stock up to the last minute.
@@ -43,13 +43,13 @@ def liveMinutePrice(ticker, which = 'Open', per = '5d'):
     stock = yf.Ticker(ticker)
     his = stock.history(period = per, interval = '1m')
     if which=='Open':
-        return his.Open.real.tolist()
+        return his.Open.values.tolist()
     elif which=='Close':
-        return his.Close.real.tolist()
+        return his.Close.values.tolist()
     elif which == 'Low':
-        return his.Low.real.tolist()
+        return his.Low.values.tolist()
     else:
-        return his.High.real.tolist()
+        return his.High.values.tolist()
 
 ##########################################     Get Prices Functions      #########################################
 ##################################################################################################################
@@ -73,7 +73,7 @@ def openToCloseDiff(ticker, numDays = 100,  endDay=date.today()):
     stock = yf.Ticker(ticker)
     his = stock.history(start=startDay, end=endDay, period = '1d')
     diff = his.Close - his.Open
-    return diff.real[-numDays:]
+    return diff.values[-numDays:]
 
 
 
@@ -95,7 +95,7 @@ def openToCloseDiffPercent(ticker, numDays = 100,  endDay=date.today()):
     stock = yf.Ticker(ticker)
     his = stock.history(start=startDay, end=endDay, period = '1d')
     diff = (his.Close - his.Open)/his.Open*100
-    return diff.real[-numDays:]
+    return diff.values[-numDays:]
 
 
 ##########################################     Single Day Functions      #########################################
@@ -124,7 +124,7 @@ def dayToDayDiff(ticker, which = 'Open', numDays = 100,  endDay=date.today()):
 
 
 def dayToDayDiffPercent(ticker, which = 'Open', numDays = 100,  endDay=date.today()):
-    data = dayPrices(ticker, which, numdays = numDays+1, endDay = endDay)
+    data = dayPrices(ticker, which, numDays = numDays+1, endDay = endDay)
     for i in range(0,len(data) - 1):
         data[i] = (data[i+1] - data[i])/data[i]*100
     return data[:-1]
@@ -134,17 +134,8 @@ def dayToDayDiffPercent(ticker, which = 'Open', numDays = 100,  endDay=date.toda
 
 
 def getStartDay(endDay, numDays):
-    numDays +=  int(numDays/10)
-    return wd.workday(endDay,-numDays)
-
-def array2dataset(inArray, windowSize):
-    data = []
-    for i in range(0,len(inArray)-windowSize):
-        features = inArray[i:i + windowSize]
-        target = inArray[i+windowSize]
-        data.append([features,target])
-    return data
-    
+    numDays +=  int(numDays/5)
+    return wd.workday(endDay,-numDays)    
 
 # a= dayToDayDiff('aapl')
 # a = prices('aapl',inter='1m', numDays=5,endDay=date.today())

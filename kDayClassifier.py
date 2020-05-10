@@ -12,20 +12,26 @@ class kDayMean(Classifier):
     def __init__(self,ticker,days=5):
         self.ticker=ticker
         self.days=days
+        self.inputSize=days
     
-    def predict(self, day=date.today(), minute = False, which = 'Open'):
+    def predictLive(self, day=date.today(), minute = True, which = 'Open'):
 
-        if minute:
-            data = sm.liveMinutePrice(self.ticker)
-            av = np.mean(data)
-            nowPrice = sm.livePrice(self.ticker)
+        # if minute:
+        data = sm.liveMinutePrice(self.ticker)
+        av = np.mean(data)
+        nowPrice = sm.livePrice(self.ticker)
 
-        else:
-            data = sm.prices(self.ticker,which=which, inter='1m', numDays = self.days, endDay = day)
-            av = np.mean(data)
-            nowPrice = sm.livePrice(self.ticker)
+        # else:
+        #     data = sm.prices(self.ticker,which=which, inter='1m', numDays = self.days, endDay = day)
+        #     av = np.mean(data)
+        #     nowPrice = sm.livePrice(self.ticker)
 
         if nowPrice > av:
             return 1
         else:
             return 0
+
+    def predict(self, inputArray):
+        av = np.mean(inputArray)
+        return (inputArray[-1] > av) * 1
+
