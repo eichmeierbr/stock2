@@ -1,6 +1,7 @@
 import yfinance as yf
 from datetime import date, timedelta
 import workdays as wd
+import numpy as np
 
 
 ##################################################################################################################
@@ -14,13 +15,14 @@ def dayPrices(ticker, which = 'Open', per = '1d', inter= '1d', numDays = 100, en
     stock = yf.Ticker(ticker)
     his = stock.history(start=startDay, end=endDay, period = per, interval=inter)
     if which=='Open':
-        return his.Open.values.tolist()[-numDays:]
+        vals = his.Open.values.tolist()[-numDays:]
     elif which=='Close':
-        return his.Close.values.tolist()[-numDays:]
+        vals = his.Close.values.tolist()[-numDays:]
     elif which == 'Low':
-        return his.Low.values.tolist()[-numDays:]
+        vals = his.Low.values.tolist()[-numDays:]
     else:
-        return his.High.values.tolist()[-numDays:]
+        vals = his.High.values.tolist()[-numDays:]
+    return [x for x in vals if ~np.isnan(x)]
 
 
 # Retrieve the live price of a stock up to the last minute.
@@ -137,7 +139,44 @@ def getStartDay(endDay, numDays):
     numDays +=  int(numDays/5)
     return wd.workday(endDay,-numDays)    
 
-# a= dayToDayDiff('aapl')
-# a = prices('aapl',inter='1m', numDays=5,endDay=date.today())
-# a = array2dataset(range(0,10),4)
-# print 'hi'
+
+# def array2dataset(inArray, windowSize):
+#     data = []
+#     for i in range(0,len(inArray)-windowSize):
+#         features = inArray[i:i + windowSize]
+#         target = inArray[i+windowSize]
+#         data.append([features,target])
+#     return data
+
+def array2dataset(inArray, windowSize):
+    data = []
+    labels = []
+    for i in range(0,len(inArray)-windowSize):
+        features = inArray[i:i + windowSize]
+        target = inArray[i+windowSize]
+        data.append(features)
+        labels.append(target)
+    return data, labels
+
+
+def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
+    inputSize = classifier.inputSize
+    numDays = classifier.days+numDaysOrig
+    data = dayToDayDiffPercent(classifier.ticker,which=which, numDays = numDays, endDay = endDay)
+
+    split_data = array2dataset(data, inputSize)
+    actions = []
+
+
+    # Find the percent difference over the training period
+    actions = classifier.predict(split_data[0])    
+    percentDiff = 0
+    conf_mat = np.zeros([2,2])
+    for pred, true in zip(actions, split_data[1]):
+
+        pred_bin = (pred>0)*1
+        true_bin = (true>0)*1
+        conf_mat[pred_bin, true_bin] += 1
+        if pred > 0: percentDiff += true
+
+    return percentDiff, conf_mat/numDaysOrig

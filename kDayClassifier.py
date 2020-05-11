@@ -32,6 +32,9 @@ class kDayMean(Classifier):
             return 0
 
     def predict(self, inputArray):
-        av = np.mean(inputArray)
-        return (inputArray[-1] > av) * 1
+        actions = []
+        for features in inputArray:
+            av = np.mean(features)
+            actions.append((features[-1] > av) * 1)
+        return actions
 
