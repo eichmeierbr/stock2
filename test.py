@@ -1,12 +1,16 @@
 from kDayClassifier import *
 from knn_classifier import *
+from k_meansClass import *
+from svm_class import *
 from datetime import date, timedelta
 import workdays as wd
 import numpy as np
 import stock_market as sm
 
 # clf = kDayMean('aapl', days=3)
-clf = knn_classifier('aapl', inputSize=8, binary=False, n_neighbors=3)
+# clf = knn_classifier('aapl', inputSize=8, binary=False, n_neighbors=3)
+# clf = k_meansCluster('aapl', inputSize=8, binary=False)
+clf = svm_class('aapl', binary=False)
 
 # Get Testing Data
 numTestDays = 200
