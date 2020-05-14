@@ -7,6 +7,7 @@ from sklearn.cluster import KMeans
 
 class k_meansCluster(Classifier):
     def __init__(self,ticker,inputSize=5, binary=True):
+        self.type = 'K-Means'
         self.ticker=ticker
         self.days=inputSize
         self.inputSize = inputSize
@@ -21,10 +22,6 @@ class k_meansCluster(Classifier):
         return pred
 
 
-    def processData(self):
-        return []
-
-
-    def train(self, X, Y):
+    def fit(self, X, Y):
         self.kmeans.fit(X,Y)
 

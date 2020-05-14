@@ -6,14 +6,17 @@ from sklearn import svm
 
 
 class svm_class(Classifier):
-    def __init__(self,ticker,inputSize=5, binary=True):
+    def __init__(self,ticker,inputSize=5, binary=True, risk=0.5):
+        self.type = 'SVM'
         self.ticker=ticker
         self.days=inputSize
         self.inputSize = inputSize
         self.binary=binary
         kern = 'sigmoid'
+        self.risk_thresh = 1 - risk
         if binary:
             self.svm = svm.SVC(kernel=kern)
+            self.svm.probability=True
         else:
             self.svm = svm.SVR(kernel=kern)
     
@@ -21,14 +24,16 @@ class svm_class(Classifier):
     def predict(self, inputArray):
         inputArray = np.array(inputArray)
         inputArray.reshape([1,-1])
-        pred = self.svm.predict(inputArray)
+
+        if self.binary:
+            pred = self.svm.predict_proba(inputArray)
+            pred = (np.array(pred)[:,1] > self.risk_thresh)*1
+        else:
+            pred = self.svm.predict(inputArray)
         return pred
 
 
-    def processData(self):
-        return []
 
-
-    def train(self, X, Y):
+    def fit(self, X, Y):
         self.svm.fit(X,Y)
 

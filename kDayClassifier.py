@@ -10,9 +10,11 @@ import numpy as np
 
 class kDayMean(Classifier):
     def __init__(self,ticker,days=5):
+        self.type = 'K-Day Mean'
         self.ticker=ticker
         self.days=days
         self.inputSize=days
+        self.binary = True
     
     def predictLive(self, day=date.today(), minute = True, which = 'Open'):
 
@@ -37,4 +39,5 @@ class kDayMean(Classifier):
             av = np.mean(features)
             actions.append((features[-1] > av) * 1)
         return actions
+
 

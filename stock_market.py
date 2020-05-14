@@ -159,21 +159,39 @@ def array2dataset(inArray, windowSize):
     return data, labels
 
 
-def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
+def getActionsSingleClassifier(classifier, numDaysOrig, endDay, which='Open'):
     inputSize = classifier.inputSize
     numDays = classifier.days+numDaysOrig
     data = dayToDayDiffPercent(classifier.ticker,which=which, numDays = numDays, endDay = endDay)
 
     split_data = array2dataset(data, inputSize)
-    actions = []
+
+    actions = classifier.predict(split_data[0])
+    return actions, split_data[1]
 
 
-    # Find the percent difference over the training period
-    actions = classifier.predict(split_data[0])    
+def getActionsMultiClassifier(classifier, numDaysOrig, endDay, which='Open'):
+    
+    inputSize = classifier.inputSize
+    numDays = classifier.days+numDaysOrig
+    data = dayToDayDiffPercent(classifier.ticker,which=which, numDays = numDays, endDay = endDay)
+
+    split_data = array2dataset(data, inputSize)
+
+    actions = classifier.predict(split_data[0])
+    return actions, split_data[1]
+
+
+def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
+    if classifier.type=='Majority Vote':
+        actions, labels = getActionsMultiClassifier(classifier, numDaysOrig, endDay, which='Open')
+    else:
+        actions, labels = getActionsSingleClassifier(classifier, numDaysOrig, endDay, which='Open')
     percentDiff = 0
     conf_mat = np.zeros([2,2])
-    for pred, true in zip(actions, split_data[1]):
 
+    # Comput Gain and Confusion Matrix
+    for pred, true in zip(actions, labels):
         pred_bin = (pred>0)*1
         true_bin = (true>0)*1
         conf_mat[pred_bin, true_bin] += 1
