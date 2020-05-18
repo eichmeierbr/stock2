@@ -161,9 +161,10 @@ def array2dataset(inArray, windowSize):
 
 def getActionsSingleClassifier(classifier, numDaysOrig, endDay, which='Open'):
     inputSize = classifier.inputSize
-    numDays = classifier.days+numDaysOrig
+    numDays = classifier.inputSize+numDaysOrig
     data = dayToDayDiffPercent(classifier.ticker,which=which, numDays = numDays, endDay = endDay)
-
+    if len(data) < numDays: 
+        return [0], [0]
     split_data = array2dataset(data, inputSize)
 
     actions = classifier.predict(split_data[0])
@@ -173,9 +174,10 @@ def getActionsSingleClassifier(classifier, numDaysOrig, endDay, which='Open'):
 def getActionsMultiClassifier(classifier, numDaysOrig, endDay, which='Open'):
     
     inputSize = classifier.inputSize
-    numDays = classifier.days+numDaysOrig
+    numDays = classifier.inputSize+numDaysOrig
     data = dayToDayDiffPercent(classifier.ticker,which=which, numDays = numDays, endDay = endDay)
-
+    if len(data) < numDays: 
+        return [0], [0]
     split_data = array2dataset(data, inputSize)
 
     actions = classifier.predict(split_data[0])
@@ -187,7 +189,7 @@ def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
         actions, labels = getActionsMultiClassifier(classifier, numDaysOrig, endDay, which='Open')
     else:
         actions, labels = getActionsSingleClassifier(classifier, numDaysOrig, endDay, which='Open')
-    percentDiff = 0
+    percentDiff = []
     conf_mat = np.zeros([2,2])
 
     # Comput Gain and Confusion Matrix
@@ -195,6 +197,7 @@ def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
         pred_bin = (pred>0)*1
         true_bin = (true>0)*1
         conf_mat[pred_bin, true_bin] += 1
-        if pred > 0: percentDiff += true
+        # if pred > 0: percentDiff.append(true)
+        percentDiff.append(pred_bin*true)
 
     return percentDiff, conf_mat/numDaysOrig

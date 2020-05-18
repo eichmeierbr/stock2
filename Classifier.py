@@ -30,3 +30,9 @@ class Classifier:
 
     def fit(self, input, labels):
         return
+
+
+    def predictToday(self):
+        data = sm.dayToDayDiffPercent(self.ticker,which='Open', numDays = self.inputSize)
+        act = self.predict([data])
+        return act

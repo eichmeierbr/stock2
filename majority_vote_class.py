@@ -45,7 +45,7 @@ class majorityVoteClass(Classifier):
             actions = self.clf.predict(inputArray[:,-self.clf.inputSize:])
             for j in range(len(actions)):
                 act = actions[j]
-                preds[j,act] += self.weights[i]
+                preds[j,(act>0)*1] += self.weights[i]
             self.actions.append(actions)
 
         maxVotes = np.max(preds,axis=1)
