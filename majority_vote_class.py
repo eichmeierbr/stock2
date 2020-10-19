@@ -33,7 +33,7 @@ class majorityVoteClass(Classifier):
         for i in range(len(self.clfs)):
             if self.inputSize < self.clfs[i].inputSize:
                 self.inputSize = self.clfs[i].inputSize
-            self.clfs[i].trainClf(endDay=date.today(), numTrainDays=100)
+            self.clfs[i].trainClf(endDay=endDay, numTrainDays=100)
     
 
     def predict(self, inputArray):
@@ -45,16 +45,15 @@ class majorityVoteClass(Classifier):
             actions = self.clf.predict(inputArray[:,-self.clf.inputSize:])
             for j in range(len(actions)):
                 act = actions[j]
-                preds[j,(act>0)*1] += self.weights[i]
+                preds[j,(act>0.01)*1] += self.weights[i]
             self.actions.append(actions)
 
         maxVotes = np.max(preds,axis=1)
         pred = np.argmax(preds, axis=1)
+        conf = maxVotes/np.sum(self.weights)
+        pred = pred * (conf > self.risk_thresh)*1
+        print('%s: Pred: %i, Conf: %.2f' %(self.ticker, pred, conf))
 
-        pred = pred * (maxVotes > self.risk_thresh*len(self.clfs))*1
-        # for i in range(len(pred)):
-        #     if pred[i]:
-        #         pred[i] = (maxVotes[i]/len(self.clfs) > self.risk_thresh)*1
         return pred
 
     def predictSingleClf(self, inputArray):

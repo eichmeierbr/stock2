@@ -16,13 +16,18 @@ import workdays as wd
 import numpy as np
 import stock_market as sm
 import matplotlib.pyplot as plt
+import yfinance as yf
 
-def plotGains(gains,clf, year, save=False):
+
+def plotGains(gains,clf, year, holdGains=[], save=False):
     plt.plot(gains, 'b-')
+    if len(holdGains) > 0:
+        plt.plot(holdGains, 'r--')
     plt.pause(0.001)
     plt.title('%s: %s, Year: %i' %(clf.type,clf.ticker,year))
     plt.xlabel('Days')
     plt.ylabel('Yield')
+    plt.legend(['Clf', 'Stock'])
     if save:
         plt.savefig('results/%s-%s_Year-%i.png' %(clf.type,clf.ticker,year))
         plt.clf()
@@ -31,23 +36,54 @@ def plotGains(gains,clf, year, save=False):
         plt.clf()
 
 
+def getHoldGains(ticker, startDate, endDate):
+    
+    numDays =wd.networkdays(startDate, endDate)
+
+    stock = yf.Ticker(ticker)
+    his = stock.history(start=startDate, end=endDate, period = '1d', interval='1d')
+    data2 = his.Open.values.tolist()[-numDays:]
+    data_f = data2[0]
+    for i in range(len(data2)):
+        data2[i] = (data2[i]-data_f)/data_f + 1
+    return data2
+
+
+
+def checkIfDateHasPrice(ticker, date):
+    stock = yf.Ticker(ticker)
+    numDays = 2
+    his = stock.history(start=date, end=wd.workday(date,numDays), period = '1d', interval='1d')
+
+    try:
+        dates = his.Open.index.date
+    except:
+        return False
+    return numDays == len(dates)
+
+        
+
 
 def evaluateTimePeriod(ticker, testDate, end_date):
     # clf = kDayMean(ticker, days=3)
-    clf1 = knn_classifier(ticker, inputSize=8, binary=True, n_neighbors=3, risk = 0.5)
-    clf2 = k_meansCluster(ticker, inputSize=8, binary=False)
-    clf3 = svm_class(ticker, inputSize=20, binary=True, risk=0.65)
-    clf4 = dt_class(ticker, inputSize=15, binary=False, risk =0.7)
-    clf5 = nb_class(ticker)
-    clf6 = TensorForceClass(ticker)
-    clf6.trainClf(testDate, numTrainDays=1500)
-    clf7 = gaussProcess_classifier(ticker, inputSize=10, binary=False)
-    clfs = [clf1, clf2, clf3, clf4, clf5, clf6, clf7]
-    
-    clf = majorityVoteClass(ticker,clfs, risk = 0.5)
+    # clf1 = knn_classifier(ticker, inputSize=12, binary=False, n_neighbors=3, risk = 0.5, adaboost=True)  ### GOOD ON SOME
+    # clf2 = k_meansCluster(ticker, inputSize=15, binary=False, adaboost=True)                           ##### BAD
+    # clf3 = svm_class(ticker, inputSize=10, binary=True, risk=0.6, adaboost=True)                      ################# This is good... on some!
+    # clf4 = dt_class(ticker, inputSize=15, binary=True, risk =0.7, adaboost=True)
+    # clf5 = nb_class(ticker,inputSize=20, risk=0.5, adaboost=True)
+    # clf6 = TensorForceClass(ticker)
+    # clf6.trainClf(testDate, numTrainDays=1500)
+    clf7 = gaussProcess_classifier(ticker, inputSize=10, binary=True, adaboost=True)
+    # clf8 = adaboost_classifier(ticker, inputSize=12, binary=False, n_neighbors=3, risk = 0.5)
+    # clfs = [clf1, clf2, clf3, clf4, clf5, clf6, clf7]
+    # clfs = [clf3, clf1, clf6]
+  
+    # clf = majorityVoteClass(ticker,clfs, risk = 0.5)
+    clf = clf7
+# 
 
     # Train Classifier
-    numTrainDays = 150
+    numTrainDays = 200
     totalGain = 1.0
     allGains = [totalGain]
     totalConf = np.zeros([2,2])
@@ -59,39 +95,44 @@ def evaluateTimePeriod(ticker, testDate, end_date):
     month = testDate.month
 
     # Predict Today's Outcome
+    firstDate = testDate
+    holdGains = getHoldGains(ticker,firstDate,end_date)
 
     while testDate < end_date:
         # Make Prediction
         if testDate.month > month:
             clf.trainClf(testDate, numTrainDays)
             month += 1
-        gain, conf_mat = sm.evaluateClassifierBinary(clf, numTestDays, testDate, which='Open')
-        # Update Gain and Conf
-        totalGain *= (1 + np.sum(gain)/100)
-        allGains.append(totalGain)
-        # plotGains(allGains, clf, year)
-        totalConf += conf_mat
+        if checkIfDateHasPrice(ticker, testDate):
+            gain, conf_mat, actions = sm.evaluateClassifierBinary(clf, numTestDays, testDate, which='Open')
+            # Update Gain and Conf
+            totalGain *= (1 + np.sum(gain)/100)
+            allGains.append(totalGain)
+            # plotGains(allGains, clf, year)
+            totalConf += conf_mat
+            iters+=1
         # Increment Day
         testDate = wd.workday(testDate,1)
-        iters+=1
 
 
-    print('Today %s Prediction: %i' %(clf.ticker, clf.predictToday()))
+    # print('Today %s Prediction: %i' %(clf.ticker, clf.predictToday()))
+    print('Hold Gain = %.2f' %(holdGains[-1]))
     print('Gain = %.2f' %(np.sum(totalGain)))
     print('Confusion Matrix:')
     print(np.round(totalConf/iters,2))
+    startPrice = sm.dayPrices(ticker,numDays=1, endDay=firstDate)
 
     plt.ioff()
-    plotGains(allGains,clf, year, save=True)
+    plotGains(allGains,clf, year, holdGains, save=False)
 
 
 
-ticker = 'sbux'
+ticker = 'ge'
 
 # Get Testing Start Data
 numTestDays = 1
 year = 2020
-month = 1
+month = 10
 day = 1
 testDate = date(year,month,day)
 
@@ -102,5 +143,6 @@ else:
     end_month = 1
     end_day = 1
     end_date = date(endYear, end_month, end_day)
+
 
 evaluateTimePeriod(ticker,testDate,end_date)

@@ -26,13 +26,15 @@ class Classifier:
 
 
     def predict(self, day):
-        return 0
+        return [1]
 
     def fit(self, input, labels):
         return
 
 
-    def predictToday(self):
-        data = sm.dayToDayDiffPercent(self.ticker,which='Open', numDays = self.inputSize)
+    def predictToday(self, day=date.today()):
+        today = wd.workday(day, 1) 
+        data = sm.dayToDayDiffPercent(self.ticker,which='Open', numDays = self.inputSize, endDay=today)
+        if len(data) < self.inputSize: return -1
         act = self.predict([data])
         return act

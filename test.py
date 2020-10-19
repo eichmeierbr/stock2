@@ -45,19 +45,19 @@ numTrainDays = 150
 train_end_day = wd.workday(endDay,-numTestDays-clf.inputSize) 
 
 # Train Classifier
-clf.clfs[5].trainClf(train_end_day, numTrainDays=1500)
+# clf.clfs[5].trainClf(train_end_day, numTrainDays=1500)
 clf.trainClf(train_end_day, numTrainDays)
 
 # sm.dayPrices(ticker)
 print('Today %s Prediction: %i' %(clf.ticker, clf.predictToday()))
 
 
-gain, conf_mat = sm.evaluateClassifierBinary(clf, numTestDays, endDay, which='Open')
+# gain, conf_mat = sm.evaluateClassifierBinary(clf, numTestDays, endDay, which='Open')
 
-totalGain = 1
-for val in gain:
-    totalGain *= (1 + val/100)
+# totalGain = 1
+# for val in gain:
+#     totalGain *= (1 + val/100)
 
-print('Gain = %.2f' %(totalGain))
-# print('Correct = %.2f' %(conf_mat[-1,-1] + conf_mat[0,0]))
-print(conf_mat)
+# print('Gain = %.2f' %(totalGain))
+# # print('Correct = %.2f' %(conf_mat[-1,-1] + conf_mat[0,0]))
+# print(conf_mat)

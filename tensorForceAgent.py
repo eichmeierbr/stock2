@@ -49,7 +49,7 @@ class TensorForceClass(Classifier):
             reward = action[0]*1*label
             self.agent.observe(reward=reward,terminal=1)
             totalReward *= (1 + reward/100)
-        print(totalReward)
+        # print(totalReward)
         self.needsTrain = False
         return
 

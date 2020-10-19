@@ -140,13 +140,7 @@ def getStartDay(endDay, numDays):
     return wd.workday(endDay,-numDays)    
 
 
-# def array2dataset(inArray, windowSize):
-#     data = []
-#     for i in range(0,len(inArray)-windowSize):
-#         features = inArray[i:i + windowSize]
-#         target = inArray[i+windowSize]
-#         data.append([features,target])
-#     return data
+
 
 def array2dataset(inArray, windowSize):
     data = []
@@ -200,4 +194,4 @@ def evaluateClassifierBinary(classifier, numDaysOrig, endDay, which='Open'):
         # if pred > 0: percentDiff.append(true)
         percentDiff.append(pred_bin*true)
 
-    return percentDiff, conf_mat/numDaysOrig
+    return percentDiff, conf_mat/numDaysOrig, actions
