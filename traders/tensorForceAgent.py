@@ -28,10 +28,11 @@ class TensorForceClass(Classifier):
         actions_dict = {'type': 'bool', 'shape': 1}
 
         agent = Agent.create(
-            agent='dqn',
+            agent='ppo',
             states = states_dict,
             actions = actions_dict,
             max_episode_timesteps=1,
+            batch_size=10,
             exploration = 0.05,
             memory=10000)
 

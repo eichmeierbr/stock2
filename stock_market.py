@@ -7,11 +7,26 @@ import numpy as np
 ##################################################################################################################
 ##########################################     Get Prices Functions      #########################################
 
+
+def dayPricesWithDates(ticker, startDay, endDay, which = 'Open', per = '1d', inter= '1d'):
+
+    stock = yf.Ticker(ticker)
+    his = stock.history(start=startDay, end=endDay, period = per, interval=inter)
+    if which=='Open':
+        vals = his.Open.values.tolist()[-numDays:]
+    elif which=='Close':
+        vals = his.Close.values.tolist()[-numDays:]
+    elif which == 'Low':
+        vals = his.Low.values.tolist()[-numDays:]
+    else:
+        vals = his.High.values.tolist()[-numDays:]
+    return vals
+
+
 # Retreive array of stock prices. 
 
 def dayPrices(ticker, which = 'Open', per = '1d', inter= '1d', numDays = 100, endDay=date.today()):
     startDay = getStartDay(endDay, numDays)
-
     stock = yf.Ticker(ticker)
     his = stock.history(start=startDay, end=endDay, period = per, interval=inter)
     if which=='Open':
