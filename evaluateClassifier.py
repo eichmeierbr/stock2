@@ -13,8 +13,6 @@ from gaussianProcess_class import *
 from nn_class import *
 
 
-from sklearn.ensemble import RandomForestClassifier
-
 from datetime import date, timedelta
 import workdays as wd
 import numpy as np
