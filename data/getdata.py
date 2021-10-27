@@ -13,6 +13,9 @@ class Ticker_history:
         self.interval = interval
         self.start_day = start_day
         self.data = []
+        self.now_data = []
+        self.history = []
+        self.future = []
         self.headers = None
 
         if interval in ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h']:
@@ -39,16 +42,30 @@ class Ticker_history:
         file_name = path_prefix + self.ticker + '_' + '1d' + '.csv'
 
         with open(file_name, newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-            for idx, row in enumerate(reader):
-                if idx is 0:
-                    self.headers = row
-                else:
-                    row[0] = datetime.date(datetime.strptime(row[0], '%Y-%m-%d'))
-                    for i in range(1,len(row)):
-                        row[i] = float(row[i])
-                    self.data.append(row)
-            self.data = np.array(self.data)
+            # reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            # for idx, row in enumerate(reader):
+            #     if idx is 0:
+            #         self.headers = row
+            #     else:
+            #         row[0] = datetime.date(datetime.strptime(row[0], '%Y-%m-%d'))
+            #         for i in range(1,len(row)):
+            #             row[i] = float(row[i])
+            #         self.data.append(row)
+            # self.data = np.array(self.data)
+
+
+            file = np.loadtxt(csvfile, dtype=str, delimiter=',')
+            self.headers = list(file[0])    
+
+            ## Extract and convert dates
+            dates = [datetime.date(datetime.strptime(day, '%Y-%m-%d')) for day in file[1:,0]]
+            dates = np.array(dates).reshape([-1,1])
+
+            ## Convert numbers
+            nums = file[1:,1:].astype(np.float)
+
+            ## Convert dates and data
+            self.data = np.hstack((dates,nums))
             return self.data
                  
     def get_daily_stock_data(self):
@@ -59,6 +76,7 @@ class Ticker_history:
     def update_daily_stock_data(self):
         path_prefix = 'data/'
         file_name = path_prefix + self.ticker + '_' + '1d' + '.csv'
+        exists = False
         if not os.path.isfile(file_name): 
             start = date(1900,1,1)
         else:
@@ -66,9 +84,10 @@ class Ticker_history:
             last_day = data['Date'].iloc[-1]
             ld = date.fromisoformat(last_day)
             start = wd.workday(ld, 1)
+            exists = True
 
         ## Check if we're up to date
-        if start == date.today():
+        if wd.workday(wd.workday(start,-1),1) > date.today() or wd.workday(wd.workday(start,1),-1) < date.today() and exists:
             return
 
 
@@ -101,6 +120,18 @@ class Ticker_history:
             print('Interval %s not available, defaulting to 1d' %(interval))
             interval = '1d'
         return interval
+
+    def set_start_day(self, day):
+        self.history = self.data[self.data[:,0] <= day]
+        self.future = self.data[self.data[:,0] > day]
+        self.start_day = day
+        self.now_data = self.history[-1]
+        a=3
+
+    def advance_time(self):
+        self.history = np.vstack((self.history, self.future[0]))
+        self.now_data = self.history[-1]
+        self.future = self.future[1:]
 
 
 if __name__ == "__main__":
