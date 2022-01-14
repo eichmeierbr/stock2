@@ -8,6 +8,7 @@ import matplotlib.dates as mdates
 sys.path.append('./traders')
 from random_trader import randomTrader
 from holdTrader import holdTrader
+from movingAverageCross import simpleMovingAverageCrossTrader
 
 class BackTester:
     def __init__(self, tickers, start_date, end_date):
@@ -66,7 +67,7 @@ class BackTester:
         ## For each day
         while self.day <= self.end_date:
             
-            print('Processing day: ', self.day)
+            # print('Processing day: ', self.day)
             self.updateOpenings()
 
             for trader in traders:
@@ -89,13 +90,14 @@ class BackTester:
 
 
 ## Select/Load Stock(s)
-stockUniverse = ['aapl','msft']
-b = BackTester(stockUniverse, date(2000,1,1), date(2008,1,1))
+stockUniverse = ['gme']
+b = BackTester(stockUniverse, date(2015,1,1), date(2020,1,1))
 
 ## Define trading agents
 traders= []
 traders.append(holdTrader())
-traders.append(randomTrader())
+# traders.append(randomTrader())
+traders.append(simpleMovingAverageCrossTrader())
 
 for trader in traders:
     trader.initPortfolio(stockUniverse)

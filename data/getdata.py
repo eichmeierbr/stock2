@@ -61,10 +61,21 @@ class Ticker_history:
             dates = [datetime.date(datetime.strptime(day, '%Y-%m-%d')) for day in file[1:,0]]
             dates = np.array(dates).reshape([-1,1])
 
+            if file[1,-1] == '':
+                file[1:,-1] = file[1:,5]
+            
+            ## Remove null entries
+            deletes = []
+            for i,row in enumerate(file):
+                if '' in row:
+                    deletes.append(i)
+                    file = np.delete(file,i, axis=0)
+            
             ## Convert numbers
             nums = file[1:,1:].astype(np.float)
 
             ## Convert dates and data
+            dates = np.delete(dates,deletes, axis=0)
             self.data = np.hstack((dates,nums))
             return self.data
                  
@@ -126,7 +137,6 @@ class Ticker_history:
         self.future = self.data[self.data[:,0] > day]
         self.start_day = day
         self.now_data = self.history[-1]
-        a=3
 
     def advance_time(self):
         self.history = np.vstack((self.history, self.future[0]))

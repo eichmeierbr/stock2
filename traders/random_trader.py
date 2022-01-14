@@ -9,8 +9,11 @@ class randomTrader(baseTrader):
 
 
     def act(self, data):
-        desired =np.random.random(len(data))
-        desired *= self.totalValue / np.sum(desired)
+        if len(data) > 1:
+            desired =np.random.random(len(data))
+            desired *= self.totalValue / np.sum(desired)
+        else:
+            desired = np.random.randint(0,2,2)[:1] * self.totalValue
         stockPrices = self.getStockPrices(data)
-        desired /= stockPrices
+        desired = desired/stockPrices
         return desired
