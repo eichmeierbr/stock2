@@ -86,7 +86,7 @@ def evaluateOption(params, live_price, ticker, date, option):
 
     if daysSinceLastTrade < params.maxDaysSinceLastTrade : # and option[8] > params.minVolume:
         if np.min([noExerciseReturn, exerciseReturn]) > params.minReturn:
-            print('Tick: %s, Date: %s, Price: %.2f, Strike %.2f, No: %.2f%%, Exc: %.2f%%' %(ticker, date, live_price, option['strike'], noExerciseReturn, exerciseReturn))
+            print('Tick: %s, Date: %s, Price: %.2f, Strike %.2f, No: %.2f%%, Exc: %.2f%%, Bid: $%.2f' %(ticker, date, live_price, option['strike'], noExerciseReturn, exerciseReturn, option['bid']))
             return [ticker, date, live_price, option[2], np.round(noExerciseReturn,2), np.round(exerciseReturn,2)]
     return []
 
@@ -147,7 +147,7 @@ def getAllTickers(universe='nasdaq'):
 if __name__ == "__main__":
     params = OptionScannerParams()
     # all_tickers = getAllTickers('sp500')
-    all_tickers = ['GME', 'AAPL', 'TSLA']
+    all_tickers = ['GME', 'AAPL', 'TSLA', 'BBBY']
     # all_tickers = ['GME']
 
     start = time.time()

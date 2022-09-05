@@ -54,6 +54,7 @@ class BackTester:
         
         self.openings = np.array(self.openings)/self.openings[0]
         for i in range(len(self.data)):
+            print('%s Final Value: %.2f' %(self.data[i].ticker, self.openings[-1,i]))
             plt.plot(self.days, self.openings[:,i], label=self.data[i].ticker)
         plt.legend()
         plt.show()
@@ -65,7 +66,7 @@ class BackTester:
         # FORNOW: Just append for each day iteration
         self.days = [self.day]
         ## For each day
-        while self.day <= self.end_date:
+        while self.day < self.end_date:
             
             # print('Processing day: ', self.day)
             self.updateOpenings()
@@ -90,13 +91,13 @@ class BackTester:
 
 
 ## Select/Load Stock(s)
-stockUniverse = ['gme']
-b = BackTester(stockUniverse, date(2015,1,1), date(2020,1,1))
+stockUniverse = ['bbby']
+b = BackTester(stockUniverse, date(2022,1,1), date(2022,8,29))
 
 ## Define trading agents
 traders= []
 traders.append(holdTrader())
-# traders.append(randomTrader())
+traders.append(randomTrader())
 traders.append(simpleMovingAverageCrossTrader())
 
 for trader in traders:

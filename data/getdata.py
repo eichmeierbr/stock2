@@ -133,15 +133,18 @@ class Ticker_history:
         return interval
 
     def set_start_day(self, day):
+        if day < self.data[0,0]:
+            day = self.data[0,0]
         self.history = self.data[self.data[:,0] <= day]
         self.future = self.data[self.data[:,0] > day]
         self.start_day = day
         self.now_data = self.history[-1]
 
     def advance_time(self):
-        self.history = np.vstack((self.history, self.future[0]))
-        self.now_data = self.history[-1]
-        self.future = self.future[1:]
+        if self.future.shape[0] > 0:
+            self.history = np.vstack((self.history, self.future[0]))
+            self.now_data = self.history[-1]
+            self.future = self.future[1:]
 
 
 if __name__ == "__main__":

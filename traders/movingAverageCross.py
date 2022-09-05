@@ -8,14 +8,15 @@ class simpleMovingAverageCrossTrader(baseTrader):
         super().__init__()
         self.type = 'simpleMA'
         self.didPreviousCross = -1
-        self.shortMAtime = 50
-        self.longMAtime = 200
+        self.shortMAtime = 10
+        self.longMAtime = 40
 
 
     def act(self, data):
         vals = data[0].history[:,1].astype(np.float)
-        shortMa = np.mean(vals[-self.shortMAtime:])
-        longMa = np.mean(vals[-self.longMAtime:])
+
+        shortMa = talib.EMA(vals[-self.shortMAtime:], self.shortMAtime)[-1]
+        longMa = talib.EMA(vals[-self.longMAtime:], self.longMAtime)[-1]
 
         if shortMa > longMa:
             desired = np.zeros_like(data)

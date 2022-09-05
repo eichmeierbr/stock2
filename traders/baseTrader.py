@@ -74,5 +74,5 @@ class baseTrader:
 
 
     def plotResults(self, days):
-        print('%s Final Value: %.2f' %(self.type, self.totalValue))
+        print('%s Final Value: %.2f' %(self.type, self.totalValue/self.totalValueHistory[0]))
         plt.plot(days, np.array(self.totalValueHistory)/self.totalValueHistory[0], label=self.type)
