@@ -1,6 +1,3 @@
-import sys
-sys.path.append('./traders')
-
 from kDayClassifier import *
 from knn_classifier import *
 from k_meansClass import *
@@ -12,6 +9,8 @@ from tensorForceAgent import *
 from gaussianProcess_class import *
 from nn_class import *
 
+
+from sklearn.ensemble import RandomForestClassifier
 
 from datetime import date, timedelta
 import workdays as wd
@@ -73,17 +72,17 @@ def evaluateTimePeriod(ticker, testDate, end_date):
     # clf3 = svm_class(ticker, inputSize=10, binary=True, risk=0.6, adaboost=True)                      ################# This is good... on some!
     # clf4 = dt_class(ticker, inputSize=15, binary=True, risk =0.7, adaboost=True)
     # clf5 = nb_class(ticker,inputSize=20, risk=0.5, adaboost=True)
-    # clf6 = TensorForceClass(ticker)
-    # clf6.trainClf(testDate, numTrainDays=1500)
+    clf6 = TensorForceClass(ticker)
+    clf6.trainClf(testDate, numTrainDays=1500)
     clf7 = gaussProcess_classifier(ticker, inputSize=10, binary=True, adaboost=True)
     # clf8 = adaboost_classifier(ticker, inputSize=12, binary=False, n_neighbors=3, risk = 0.5)
     # clf9 = nn_class(ticker, inputSize=20, binary=False, risk=0.6, adaboost=False, layers=(20,20), act_func='logistic', solver='sgd')
-    clf10 = nn_class(ticker, inputSize=20, binary=False, risk=0.6, adaboost=False, layers=(20,20), act_func='tanh', solver='sgd')
-    clf11 = nn_class(ticker, inputSize=10, binary=False, risk=0.5, adaboost=False, layers=(80,30,20,20), act_func='tanh', solver='sgd')
+    # clf10 = nn_class(ticker, inputSize=20, binary=False, risk=0.6, adaboost=False, layers=(20,20), act_func='tanh', solver='sgd')
+    clf11 = nn_class(ticker, inputSize=10, binary=False, risk=0.5, adaboost=True, layers=(80,30,20,20), act_func='tanh', solver='sgd')
     # clf12 = nn_class(ticker, inputSize=30, binary=False, risk=0.6, adaboost=False, layers=(40,20), act_func='tanh', solver='sgd')
     # clfs = [clf1, clf2, clf3, clf4, clf5, clf7]
     # clfs = [clf3, clf1, clf6, clf9]
-    clfs = [clf11, clf7, clf10]
+    clfs = [clf11, clf6, clf7]
     # clfs = [clf9, clf10,clf11,clf12, clf6]
     
   
@@ -138,12 +137,12 @@ def evaluateTimePeriod(ticker, testDate, end_date):
 
 
 
-ticker = 'f'
+ticker = 'jnj'
 
 # Get Testing Start Data
 numTestDays = 1
 year = 2021
-month = 4
+month = 1
 day = 1
 testDate = date(year,month,day)
 

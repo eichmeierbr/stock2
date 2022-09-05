@@ -52,7 +52,7 @@ class majorityVoteClass(Classifier):
         pred = np.argmax(preds, axis=1)
         conf = maxVotes/np.sum(self.weights)
         pred = pred * (conf > self.risk_thresh)*1
-        print('%s: Pred: %i, Conf: %.2f' %(self.ticker, pred, conf))
+        # print('%s: Pred: %i, Conf: %.2f' %(self.ticker, pred, conf))
 
         return pred
 
