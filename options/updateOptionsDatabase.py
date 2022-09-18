@@ -2,7 +2,6 @@ import multiprocessing
 import numpy as np
 import json
 from optionsScanner import OptionScannerParams, getOptions, getAllTickers, getTradingDayString
-from datetime import datetime, date, timedelta, time
 from multiprocessing import Process, Value
 
 import os
@@ -118,7 +117,7 @@ def getTickerData():
     [all_tickers.remove(f) for f in empty_tickers if f in all_tickers]
 
     # Push yesterdays empty tickers to back
-    [all_tickers.append(all_tickers.pop(all_tickers.index(tick))) for tick in yesterday_empty_tickers]
+    [all_tickers.append(all_tickers.pop(all_tickers.index(tick))) for tick in yesterday_empty_tickers if tick in all_tickers]
 
     # Remove .B tickers
     [all_tickers.remove(f) for f in all_tickers if '.' in f]
@@ -133,6 +132,8 @@ if __name__ == "__main__":
     # all_tickers = ['GME', 'AAPL', 'TSLA', 'BBBY']
     # all_tickers = ['GME']
     # empty_tickers = []
+
+    cleanStaleData(all_tickers, printDebug=False)
 
     for ticker in all_tickers:
         if not cleanStaleData(ticker, printDebug=False):

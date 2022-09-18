@@ -1,5 +1,4 @@
 import multiprocessing
-import yfinance as yf
 import numpy as np
 import requests
 from datetime import timedelta, datetime
@@ -20,7 +19,7 @@ class OptionScannerParams:
         self.minVolume = 50
         self.maxDaysSinceLastTrade = 4
         self.maxOptionsAway = 30
-        self.minReturn = 5
+        self.minReturn = 7
         self.numExpireDates = 4
         self.today = np.datetime64('today', 'D')
         self.endDate = datetime.today() + timedelta(days=self.maxOptionsAway)
@@ -123,7 +122,7 @@ def evaluateOption(params, live_price, ticker, date, option):
     noExerciseReturn = (option['bid'] - params.commish)/live_price * 100
     exerciseReturn = (option['bid'] + option['strike'] - live_price - params.commish)/live_price * 100
 
-    if daysSinceLastTrade < params.maxDaysSinceLastTrade : # and option[8] > params.minVolume:
+    if daysSinceLastTrade < params.maxDaysSinceLastTrade and option['volume'] > params.minVolume:
         if np.min([noExerciseReturn, exerciseReturn]) > params.minReturn:
             # print('Tick: %s, Date: %s, Price: %.2f, Strike %.2f, No: %.2f%%, Exc: %.2f%%, Bid: $%.2f' %(ticker, date, live_price, option['strike'], noExerciseReturn, exerciseReturn, option['bid']))
             out = [ticker, date, live_price, option['strike'], np.round(noExerciseReturn,2), np.round(exerciseReturn,2), np.round(np.min([noExerciseReturn, exerciseReturn]), 2), option['bid']]
@@ -205,6 +204,7 @@ def saveToCsv(options):
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(options)
+    # import discordReport
 
 if __name__ == "__main__":
     params = OptionScannerParams()
