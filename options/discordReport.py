@@ -27,8 +27,6 @@ def createDiscordReport():
     #         await message.channel.send('Hello!')
 
     client.run(os.environ['DISCORD_KEY'])
-    # client.run('MTAyMDUzODI2NDU4NDcyNDU3MA.GsDJ_D.xUdwuNy1YKJ2ThV27s21sKdgJFS9NVz8QdTZWU')
-
 
 if __name__=="__main__":
     createDiscordReport()
