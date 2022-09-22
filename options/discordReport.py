@@ -1,26 +1,34 @@
+#!/usr/bin/python
 import discord
 import os
 
-intents = discord.Intents.default()
-intents.message_content = True
 
-client = discord.Client(intents=intents)
+def createDiscordReport():
+    intents = discord.Intents.default()
+    intents.message_content = True
 
-@client.event
-async def on_ready():
-    channel = client.get_channel(1020721546932793467)
-    await channel.send('Daily Results!', file=discord.File("out.csv"))
-    await client.close()
-    exit()
-    # await channel.send([1,2,3,4])
-    # print(f'We have logged in as {client.user}')
+    client = discord.Client(intents=intents)
 
-# @client.event
-# async def on_message(message):
-#     if message.author == client.user:
-#         return
+    @client.event
+    async def on_ready():
+        channel = client.get_channel(1020721546932793467)
+        await channel.send('Daily Results!', file=discord.File("out.csv"))
+        await client.close()
+        exit()
+        # await channel.send([1,2,3,4])
+        # print(f'We have logged in as {client.user}')
 
-#     if message.content.startswith('hello'):
-#         await message.channel.send('Hello!')
+    # @client.event
+    # async def on_message(message):
+    #     if message.author == client.user:
+    #         return
 
-client.run(os.environ['DISCORD_KEY'])
+    #     if message.content.startswith('hello'):
+    #         await message.channel.send('Hello!')
+
+    client.run(os.environ['DISCORD_KEY'])
+    # client.run('MTAyMDUzODI2NDU4NDcyNDU3MA.GsDJ_D.xUdwuNy1YKJ2ThV27s21sKdgJFS9NVz8QdTZWU')
+
+
+if __name__=="__main__":
+    createDiscordReport()

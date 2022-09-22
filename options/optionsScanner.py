@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import multiprocessing
 import numpy as np
 import requests
@@ -11,6 +12,7 @@ import json
 from functools import partial
 import pandas as pd
 
+from discordReport import createDiscordReport
 
 class OptionScannerParams:
     def __init__(self):
@@ -204,7 +206,7 @@ def saveToCsv(options):
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(options)
-    # import discordReport
+    createDiscordReport()
 
 if __name__ == "__main__":
     params = OptionScannerParams()
