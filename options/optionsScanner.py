@@ -21,7 +21,7 @@ class OptionScannerParams:
         self.minVolume = 50
         self.maxDaysSinceLastTrade = 4
         self.maxOptionsAway = 30
-        self.minReturn = 7
+        self.minReturn = 5
         self.numExpireDates = 4
         self.today = np.datetime64('today', 'D')
         self.endDate = datetime.today() + timedelta(days=self.maxOptionsAway)
@@ -84,7 +84,7 @@ def getOptions(ticker, endDate=None, delay=0):
     r = getOptionOnExpiration(ticker, endDate=endDate)
     api_calls += 1
     if r == None:
-        return r, -1, -1
+        return r, -1, 1
     
     expirations = r['expirationDates']
     options = {}
@@ -202,11 +202,16 @@ def getTickersWithData():
 
 def saveToCsv(options):
     headers = ['Ticker', 'Expiration', 'Current Price', 'Strike', 'No Exercise %gain', 'Exercise %gain', 'Min Gain', 'Bid']
-    with open("out.csv", "w", newline="") as f:
+
+    # Remove Old CSVs
+    filelist = [ f for f in os.listdir("options/data") if f.endswith(".csv") ]
+    for f in filelist:
+        os.remove(os.path.join("options/data", f))
+    with open(f"options/data/{getTradingDayString()}.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(options)
-    createDiscordReport()
+    # createDiscordReport()
 
 if __name__ == "__main__":
     params = OptionScannerParams()

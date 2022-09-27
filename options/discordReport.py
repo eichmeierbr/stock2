@@ -12,7 +12,21 @@ def createDiscordReport():
     @client.event
     async def on_ready():
         channel = client.get_channel(1020721546932793467)
-        await channel.send('Daily Results!', file=discord.File("out.csv"))
+        filelist = [ f for f in os.listdir("options/data") if f.endswith(".csv") ]
+        
+        ## Write file as text
+        with open(f"options/data/{filelist[0]}", "r", newline="") as f:
+            output_text = ''
+            for line in f:
+                line = line.replace(',','\t')
+                output_text += f"{line}\n"
+                if len(output_text) > 1900:
+                    await channel.send(output_text)
+                    output_text = ''
+        
+        # Upload File
+        await channel.send('Daily Results!', file=discord.File(f"options/data/{filelist[0]}"))
+
         await client.close()
         exit()
         # await channel.send([1,2,3,4])
