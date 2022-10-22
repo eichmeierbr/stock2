@@ -4,4 +4,3 @@ __pycache__
 data/*.csv
 options/data/*
 out.csv
-config.json
