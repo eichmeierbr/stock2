@@ -7,12 +7,13 @@ from email import encoders
 import json
 
 import os
-from optionsScanner import getTradingDayString
-
 
 def sendGmailReport():
     with open("config.json", "r") as read_file:
         data = json.load(read_file)
+
+    mail_content = ''
+    filelist = [ f for f in os.listdir("options/data") if f.endswith(".csv") ]
 
     #The mail addresses and password
     sender_address = data['sendEmail']
@@ -22,11 +23,8 @@ def sendGmailReport():
     message = MIMEMultipart()
     message['From'] = sender_address
     message['To'] = receiver_address
-    message['Subject'] = f'Daily Results: {getTradingDayString()}'   #The subject line
+    message['Subject'] = f'Daily Results: {filelist[0][:-4]}'   #The subject line
 
-
-    mail_content = ''
-    filelist = [ f for f in os.listdir("options/data") if f.endswith(".csv") ]
     ## Write file as text
     with open(f"options/data/{filelist[0]}", "r", newline="") as f:
         for line in f:
