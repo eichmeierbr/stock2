@@ -2,16 +2,21 @@
 import discord
 import os
 
+import json
+
 
 def createDiscordReport():
     intents = discord.Intents.default()
     intents.message_content = True
 
+    with open("config.json", "r") as read_file:
+        data = json.load(read_file)
+
     client = discord.Client(intents=intents)
 
     @client.event
     async def on_ready():
-        channel = client.get_channel(1020721546932793467)
+        channel = client.get_channel(data['discordChannel'])
         filelist = [ f for f in os.listdir("options/data") if f.endswith(".csv") ]
         
         ## Write file as text
@@ -40,7 +45,7 @@ def createDiscordReport():
     #     if message.content.startswith('hello'):
     #         await message.channel.send('Hello!')
 
-    client.run(os.environ['DISCORD_KEY'])
+    client.run(data['discordKey'])
 
 if __name__=="__main__":
     createDiscordReport()

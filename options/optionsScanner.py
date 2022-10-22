@@ -13,6 +13,7 @@ from functools import partial
 import pandas as pd
 
 from discordReport import createDiscordReport
+from gmailReport import sendGmailReport
 
 class OptionScannerParams:
     def __init__(self):
@@ -211,7 +212,8 @@ def saveToCsv(options):
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(options)
-    # createDiscordReport()
+    createDiscordReport()
+    sendGmailReport()
 
 if __name__ == "__main__":
     params = OptionScannerParams()
